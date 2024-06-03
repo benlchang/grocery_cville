@@ -20,7 +20,7 @@ const locations = {
     'kroger_barracks' : ['kroger', '02900359', '1152 Emmet St N'],
     'harristeeter_barracks' : ['harristeeter', '09700177', '975 Emmet St N'],
     'kroger_hydraulic' : ['kroger', '02900239', '1904 Emmet St N'],
-    '09700132': 'harristeeter',
+    'harristeeter_': 'harristeeter',
     '09700332': 'harristeeter',
     '02900334': 'kroger'
 }
@@ -33,12 +33,7 @@ const loc_harristeeter_blueridge = '09700332';
 const loc_kroger_riohill = '02900334';
 
 var searchLocation = 'kroger_barracks';
-var searchTermList = ['vegetables', 'fruit', 
-'bread', 'milk', 'protein shake', 'protein bar', 
-'yogurt', 'cheese', 'ice cream', 'pizza', 'beef',
- 'chicken', 'pork', 'fish', 'stir fry', 'wine', 
- 'chocolate', 'turkey', 'soda', 'pasta sauce', 
- 'tortillas', 'frozen vegetables']
+var searchTermList = ['dole whip', 'frozen corn', 'mac and cheese', 'tim tams', 'cherries']
 
  
 for(let i = 0; i < searchTermList.length; i++){    
