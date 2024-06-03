@@ -33,13 +33,13 @@ const loc_harristeeter_blueridge = '09700332';
 const loc_kroger_riohill = '02900334';
 
 var searchLocation = 'kroger_barracks';
-var searchTermList = ['dole whip', 'frozen corn', 'mac and cheese', 'tim tams', 'cherries']
+var searchTermList = ['cherries', 'chicken', 'greek yogurt']
 
  
 for(let i = 0; i < searchTermList.length; i++){    
     let productURL = `https://api.kroger.com/v1/products?filter.limit=20&filter.term=${searchTermList[i]}&filter.locationId=${locations[searchLocation][1]}`;
 
-    const inventory = []
+    let inventory = []
 
     fetch(tokenURL, {
         method: "POST",
@@ -68,7 +68,8 @@ for(let i = 0; i < searchTermList.length; i++){
         console.log(data.data.length)
         for(let i = 0; i < data.data.length; i++){
             if(data.data[i].items[0].price != null){
-                inventory.push([locations[searchLocation][0], locations[searchLocation][2], data.data[i].description, data.data[i].items[0].price.regular])
+                let obj = [locations[searchLocation][0], locations[searchLocation][2], data.data[i].description, data.data[i].items[0].price.regular]
+                inventory.push(obj)
                 //kroger barracks: 1152 Emmet St N
             }
         }
@@ -79,11 +80,13 @@ for(let i = 0; i < searchTermList.length; i++){
         let existingData = []
         try{
             existingData = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
+            console.log(existingData)
         } catch (err) {
             console.log('File empty or not found')
         }
 
-        let allData = existingData.concat(inventory)
+        console.log(inventory.length)
+        let allData = existingData.concat([...inventory])
         var serializedArray = JSON.stringify(allData);
         fs.writeFileSync('data.json', serializedArray);
     })
