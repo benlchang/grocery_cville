@@ -1,4 +1,7 @@
 import React, {useState, useEffect} from 'react';
+import Hero from './components/Hero';
+import Searcher from './components/Searcher';
+import './index.css';
 /*await fetch('/api', {
       method: 'GET',
       headers: {
@@ -29,65 +32,10 @@ import React, {useState, useEffect} from 'react';
 
               
 function App () {
-  
-  const [resList, setResList] = useState([]);
-  const [keywordsQuery, setKeywordsQuery] = useState('');
-
-  const [krogerQuery, setKrogerQuery] = useState(false);
-  const [htQuery, setHTQuery] = useState(false);
-  const [tjQuery, setTJQuery] = useState(false);
-
-  const search = async () => {
-    console.log(krogerQuery, htQuery, tjQuery)
-    await fetch('/api', {
-      method: 'GET',
-      headers: {
-        kroger: String(krogerQuery),
-        harristeeter: String(htQuery),
-        traderjoes: String(tjQuery),
-        keywords: keywordsQuery.trim().split(' ')
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-
-      setResList(data.data)
-      console.log(data.data)
-    })
-  }
-  
-  return (
-    <div>
-      <div>
-        Store: 
-          <div>
-            Kroger? <input type='checkbox' onChange={() => setKrogerQuery(!krogerQuery)}></input>
-          </div>
-          <div>
-            Harris Teeter? <input type='checkbox' onChange={() => setHTQuery(!htQuery)}></input>
-          </div>
-          <div>
-            Trader Joe's? <input type='checkbox' onChange={() => setTJQuery(!tjQuery)}></input>
-          </div>
-      </div>
-      Keywords: <input type='text' onChange={e => setKeywordsQuery(e.target.value)}></input>
-      <button onClick={search}>Submit</button>
-      {resList.map((obj) => (
-          <div key={obj.name.concat(obj.price)}>
-            <b>{obj.name}</b>
-            <ul>
-              <li>{obj.store}</li>
-              <li>{obj.address}</li>
-              <li>${obj.price}</li>
-            </ul>
-          </div>
-        )
-      )}
-      {String(krogerQuery)}
-      {String(htQuery)}
-      {String(tjQuery)}
-    </div>
-  )
+  return <>
+    <Hero />
+    <Searcher />
+  </>
 }
 
 export default App;
