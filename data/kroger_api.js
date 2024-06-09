@@ -33,7 +33,7 @@ const loc_harristeeter_blueridge = '09700332';
 const loc_kroger_riohill = '02900334';
 
 var searchLocation = 'kroger_barracks';
-var searchTermList = ['cherries', 'chicken', 'greek yogurt']
+var searchTermList = ['chicken', 'greek yogurt', 'protein bar', 'cherries', 'raspberries']
 
  
 for(let i = 0; i < searchTermList.length; i++){    

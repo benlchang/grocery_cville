@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import Hero from './Hero';
 
 export default function Searcher () {
     const [resList, setResList] = useState([]);
@@ -21,41 +22,27 @@ export default function Searcher () {
         })
         .then(response => response.json())
         .then(data => {
-
-        setResList(data.data)
-        console.log(data.data)
+            setResList(data.data)
         })
     }
     
     return (
         <>
+            <Hero data={resList}/>
             <div className='search'>
                 <div className='storeList'>
                     <div className='storeSelection'>
-                        Kroger? <input type='checkbox' onChange={() => setKrogerQuery(!krogerQuery)}></input>
+                        <button style={krogerQuery ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setKrogerQuery(!krogerQuery)}>Kroger</button>
                     </div>
                     <div className='storeSelection'>
-                        Harris Teeter? <input type='checkbox' onChange={() => setHTQuery(!htQuery)}></input>
+                        <button style={htQuery ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setHTQuery(!htQuery)}>Harris Teeter</button>
                     </div>
                     <div className='storeSelection'>
-                        Trader Joe's? <input type='checkbox' onChange={() => setTJQuery(!tjQuery)}></input>
+                        <button style={tjQuery ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setTJQuery(!tjQuery)}>Trader Joe's</button>
                     </div>
                 </div>
                 <input className='searchbar' type='text' onChange={e => setKeywordsQuery(e.target.value)}></input>
                 <button className='searchButton' onClick={search}>Submit</button>
-            </div>
-            <div className='searchResults'>
-                {resList.map((obj) => (
-                    <div key={obj.name.concat(obj.price)}>
-                        <b>{obj.name}</b>
-                        <ul>
-                        <li>{obj.store}</li>
-                        <li>{obj.address}</li>
-                        <li>${obj.price}</li>
-                        </ul>
-                    </div>
-                    )
-                )}
             </div>
         </>
     )

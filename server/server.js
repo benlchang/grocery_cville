@@ -14,6 +14,7 @@ const locToAddress = {
 function csv_to_json(csv, kroger, harristeeter, traderjoes, keywords=null) {
     let lines = csv.split('\n')
     var res = []
+    var tempRes = []
 
     lines = lines.map((item) => item.split(','))
     
@@ -51,10 +52,16 @@ function csv_to_json(csv, kroger, harristeeter, traderjoes, keywords=null) {
             'price' : temp[3]
         }
         if(obj.name !== 'item'){
-            res.push(obj)
+            tempRes.push(obj)
         }
     }
-    console.log(res)
+
+    tempRes.sort((a, b) => Number(a.price) - Number(b.price))
+    console.log(tempRes)
+    res = [{
+        'title': 'Top results',
+        'items': tempRes
+    }]
     return res
 }
 
