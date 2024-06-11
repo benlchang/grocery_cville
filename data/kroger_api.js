@@ -75,6 +75,7 @@ for(let i = 0; i < searchTermList.length; i++){
         }
         console.log(inventory)
         
+        //write to local CSV files
         const fs = require('fs');
 
         let existingData = []

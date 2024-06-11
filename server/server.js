@@ -5,10 +5,20 @@ const dataURL = '../data/product_pricing/complete_pricing.csv';
 const fs = require('fs');
 const complete_csv = fs.readFileSync(dataURL).toString();
 
+const string_similarity = require('string-similarity');
+const tf = require('@tensorflow/tfjs');
+const use = require('@tensorflow-models/universal-sentence-encoder');
+
 const locToAddress = {
     'harristeeter': ['975 Emmet St N'],
     'kroger': ['1152 Emmet St N', '1904 Emmet St N'],
     'traderjoes': ['2025 Bond St']
+}
+
+async function loadModel(){
+    await tf.ready();
+    const model = await use.load()
+    return model;
 }
 
 function csv_to_json(csv, kroger, harristeeter, traderjoes, keywords=null) {
@@ -37,7 +47,10 @@ function csv_to_json(csv, kroger, harristeeter, traderjoes, keywords=null) {
     if(keywords){
         console.log(lines[0][2])
         temp = keywords.trim().split(',')
+        console.log(string_similarity.compareTwoStrings('chicken', 'Heritage Farm Fresh Chicken Leg Quarters')) //Not the right kind of comparison, need NLP
+        let inventory_similarities = []
         for(let i = 0; i < temp.length; i++){
+            inventory_similarities = 
             lines = lines.filter((item) => item[2] && item[2].toLowerCase().includes(temp[i]))
         }
         console.log('filter' + lines.length)
