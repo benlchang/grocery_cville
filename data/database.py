@@ -32,6 +32,7 @@ model = hub.load('https://tfhub.dev/google/universal-sentence-encoder/4')
 
 embeddings = model([data[i][2] for i in range(n)]).numpy()
 
+print(data[0][2])
 for i in range(len(data)):
     row = (i, data[i][0], data[i][1], data[i][2], json.dumps(embeddings[i].tolist()), float(data[i][3]))
     cursor.execute('''INSERT INTO product_pricing 

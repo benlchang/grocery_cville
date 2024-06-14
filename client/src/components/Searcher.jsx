@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Hero from './Hero';
 
 export default function Searcher () {
@@ -9,26 +9,49 @@ export default function Searcher () {
     const [htQuery, setHTQuery] = useState(false);
     const [tjQuery, setTJQuery] = useState(false);
 
-    const search = async () => {
+    async function search () {
         console.log(krogerQuery, htQuery, tjQuery)
         await fetch('/api', {
-        method: 'GET',
-        headers: {
-            kroger: String(krogerQuery),
-            harristeeter: String(htQuery),
-            traderjoes: String(tjQuery),
-            keywords: keywordsQuery.trim().split(' ')
-        }
+            method: 'GET',
+            headers: {
+                kroger: String(krogerQuery),
+                harristeeter: String(htQuery),
+                traderjoes: String(tjQuery),
+                keywords: keywordsQuery
+            }
         })
         .then(response => response.json())
         .then(data => {
             setResList(data.data)
+            console.log(resList.length)
         })
     }
     
     return (
         <>
-            <Hero data={resList}/>
+            {resList.length > 0 ? (<div className='searchResults'>
+                {resList.map((store) => (
+                    <>
+                        <h1 key={store.title}>{store.title}</h1>
+                        {store.items.slice(0, 7).map((obj) => (
+                            <div className='itemEntry' key={obj.name.concat(obj.price)}>
+                                <div className='store'>{obj.store}</div>
+                                <div className='name'>{obj.name}</div>
+                                <div className='price'>${Number(obj.price).toFixed(2)}</div>
+                            </div>
+                        ))}
+                    </>
+                    )
+                )}
+            </div>) :
+            (<div className='hero'>
+                <div className='homepage-logo'>
+                    Forager
+                </div>
+                <div className='homepage-subheader'>
+                    Find the best prices for the groceries you need
+                </div>
+            </div>)}
             <div className='search'>
                 <div className='storeList'>
                     <div className='storeSelection'>
