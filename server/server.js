@@ -81,8 +81,7 @@ function store_filter(stores, tempData){
 //load NLP model
 async function loadModel(){
     await tf.ready();
-    const model = await use.load()
-    return model;
+    model = await use.load()
 }
 
 //compare two vector embeddings
@@ -93,14 +92,6 @@ function cosine_similarity(sentence_a, sentence_b){
     return dot_product / (mag_a * mag_b)
 }
 
-function new_cosine_similarity(sentence_a, sentence_b){
-    let dot_product = 0
-    for(let i = 0; i < sentence_a.length; i++){
-        dot_product += sentence_a[i] * sentence_b[i]
-    }
-    return dot_product
-}
-
 // 1. embed user input
 // 2. extract data from product_pricing.db
 // 3. create and sort list of cosine similarities, tracking the index of each entry
@@ -109,7 +100,6 @@ async function search_filter(input, embedding_list, data, numResults){
     console.log("data first val", data.length, embedding_list.length)
     console.log('search input', input)
 
-    let model = await loadModel()
     let embed_comparison = []
     let input_embedding = await model.embed(input)
 
@@ -153,7 +143,7 @@ async function search_filter(input, embedding_list, data, numResults){
 
 
 //process all the data from post request
-async function process_data(kroger, harristeeter, traderjoes, keywords=null) {
+async function process_data(model, kroger, harristeeter, traderjoes, keywords=null) {
     var res = []
     var tempRes = []
     console.log("data!!", data.length)

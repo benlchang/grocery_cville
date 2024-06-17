@@ -25,6 +25,13 @@ const locations = {
     '02900334': 'kroger'
 }
 
+const abbrevToUnit = {
+    'lb': 'pound',
+    'ct': 'unit',
+    'pk': 'pack',
+    'oz': 'ounce'
+}
+
 const loc_kroger_barracks = '02900359';
 const loc_harristeeter_barracks = '09700177';
 const loc_kroger_hydraulic = '02900239';
@@ -33,7 +40,7 @@ const loc_harristeeter_blueridge = '09700332';
 const loc_kroger_riohill = '02900334';
 
 var searchLocation = 'kroger_barracks';
-var searchTermList = ['chicken', 'greek yogurt', 'protein bar', 'cherries', 'raspberries']
+var searchTermList = ['chicken', 'cherries', 'protein bars']
 
  
 for(let i = 0; i < searchTermList.length; i++){    
@@ -48,7 +55,7 @@ for(let i = 0; i < searchTermList.length; i++){
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data)
+        //console.log(data)
         token = data.access_token;
         
         const productHeader = {
@@ -65,15 +72,18 @@ for(let i = 0; i < searchTermList.length; i++){
     })
     .then(response => response.json())
     .then(data => {
-        console.log(data.data.length)
         for(let i = 0; i < data.data.length; i++){
-            if(data.data[i].items[0].price != null){
-                let obj = [locations[searchLocation][0], locations[searchLocation][2], data.data[i].description, data.data[i].items[0].price.regular]
+            let item = data.data[i].items[0]
+            if(item.price != null){
+                let sellingInfo = item.size.split(' ')
+                let totalPrice = item.price.regular
+                let pricePerUnit = `$${String((parseFloat(totalPrice) / parseFloat(sellingInfo[0])).toFixed(2))} / ${abbrevToUnit[sellingInfo[1].slice(0,2)]}`
+                let obj = [locations[searchLocation][0], locations[searchLocation][2], data.data[i].description, totalPrice, pricePerUnit]
                 inventory.push(obj)
                 //kroger barracks: 1152 Emmet St N
             }
         }
-        console.log(inventory)
+        console.log("INVENTORY", inventory)
         
         //write to local CSV files
         const fs = require('fs');

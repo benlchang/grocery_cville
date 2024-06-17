@@ -38,7 +38,7 @@ with open('data.json', 'r') as file:
 itemList = json.loads(jsList)
 print(itemList)
 
-kgDF = pd.DataFrame(itemList, columns=['store', 'address', 'item', 'total_price'])
+kgDF = pd.DataFrame(itemList, columns=['store', 'address', 'item', 'total_price', 'price_per_unit'])
 kgDF.to_csv('product_pricing/kroger_pricing.csv', index=False)
 
 

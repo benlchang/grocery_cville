@@ -1,5 +1,16 @@
 #set up database
-import sqlite3
+
+import psycopg2
+
+conn = psycopg2.connect(database="product_pricing",
+                        db_host=,
+                        db_user=,
+                        db_pass='01B3nya30',
+                        db_port='5432'
+                        )
+cursor - conn.cursor()
+
+"""import sqlite3
 
 conn = sqlite3.connect('./product_pricing.db')
 cursor = conn.cursor()
@@ -10,8 +21,9 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS product_pricing (
         location TEXT,
         name TEXT,
         embedding TEXT,
-        price FLOAT
-    )''')
+        price FLOAT,
+        pricePerUnit TEXT
+    )''')"""
 
 
 
@@ -34,10 +46,10 @@ embeddings = model([data[i][2] for i in range(n)]).numpy()
 
 print(data[0][2])
 for i in range(len(data)):
-    row = (i, data[i][0], data[i][1], data[i][2], json.dumps(embeddings[i].tolist()), float(data[i][3]))
+    row = (i, data[i][0], data[i][1], data[i][2], json.dumps(embeddings[i].tolist()), float(data[i][3]), data[i][4])
     cursor.execute('''INSERT INTO product_pricing 
-                (id, store, location, name, embedding, price)
-                VALUES (?, ?, ?, ?, ?, ?)''', row)
+                (id, store, location, name, embedding, price, pricePerUnit)
+                VALUES (?, ?, ?, ?, ?, ?, ?)''', row)
     
 conn.commit()
 conn.close()
