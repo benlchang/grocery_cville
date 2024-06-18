@@ -12,8 +12,8 @@ const pg = require('pg');
 const pgvector = require('pgvector/pg');
 const {Client} = pg;
 
-async function print(){
-    console.log('statement')
+async function processData(){
+    console.log('Entering your data into Postgres')
     await runEverything()
 }
 
@@ -27,7 +27,9 @@ async function runEverything() {
     await client.connect();
     console.log('Client connected...');
     
-    /*await client.query(`CREATE EXTENSION IF NOT EXISTS vector`)
+    /*only necessary to rebuild extension and tables from scratch
+    
+    await client.query(`CREATE EXTENSION IF NOT EXISTS vector`)
         .then(() => { console.log('Extension created...')});
 
     await pgvector.registerType(client)
@@ -49,13 +51,16 @@ async function runEverything() {
     console.log('Model loaded...')
     let nameEncodings = []
 
-    for(let i = 1; i < 2; i++){
+    for(let i = 1; i < complete_csv.length; i++){
         let line = complete_csv[i].split(',')
-        let temp = await model.embed(line[2])
+        let itemName = line[2];
+        let itemPrice = line[3], itemPricePer = line[4]
+        itemName = itemName.replace('Â', '');
+
+        let temp = await model.embed(itemName)
         let newName = await temp.array()
-        console.log(newName[0])
         await client.query(`INSERT INTO product_pricing (item_id, item_store, item_name, item_embedding, item_price, item_perunit) 
-                            VALUES ($1, $2, $3, $4, $5, $6)`, [i, line[0], line[2], `[${newName[0]}]`, line[3], line[4]])
+                            VALUES ($1, $2, $3, $4, $5, $6)`, [i, line[0], itemName, pgvector.toSql(newName[0]), itemPrice, itemPricePer])
         console.log('Embedded', i)
     }
 
@@ -64,4 +69,4 @@ async function runEverything() {
 }
 
 //let nameEncodings = runEverything();
-print();
+processData();

@@ -10,7 +10,10 @@ const complete_csv = fs.readFileSync(dataURL).toString();
 
 const tf = require('@tensorflow/tfjs');
 const use = require('@tensorflow-models/universal-sentence-encoder');
-const sqlite3 = require('sqlite3').verbose();
+
+const pg = require('pg')
+const pgvector = require('pgvector/pg')
+const {Client} = pg;
 
 //honestly just for me to remember each store's addresses
 const locToAddress = {
@@ -28,36 +31,31 @@ let model;
 
 //set up database, data
 async function database_setup() {
-    let tempData = [], tempEmbeddings = [];
-    let db = new sqlite3.Database('../data/product_pricing.db', (err) => {
-        if(err){
-            throw err;
-        }
-        console.log("Successfully connected to database");
-    });
+    console.log('Loading model...')
+    model = await loadModel()
+    console.log('Successfully loaded model')
 
-    model = await loadModel();
-    
-    let sql = 'SELECT id, store, location, name, embedding, price FROM product_pricing';
-    db.all(sql, [], (err, rows) => {
-        if(err){
-            throw err;
-        }
-        console.log("rows", rows.length)
-        rows.forEach(async (row) => {
-            let embedVector = JSON.parse(row.embedding)
-            tempEmbeddings.push(embedVector)
-            if(row.name === 'Heritage Farm Fresh Chicken Leg Quarters'){
-                console.log(embedVector, row.id)
-            }
-            tempData.push(row)
-        })
-        console.log("tempData", tempData.length)
-        data = tempData
-        embeddings = tempEmbeddings
-    });
+    let client = new Client({
+        user: 'postgres',
+        password: '01B3nya30',
+        port: '5432'
+    })
+    await client.connect();
+    console.log('Connected to database')
 
-    db.close()
+    console.log(`Retrieving table...`)
+    let temp = await client.query(`select * from product_pricing order by item_id asc`);
+    let table = temp.rows
+    //table[i] = {item_id: __, item_store: __, ...}
+    for(let i = 0; i < table.length; i++){
+        console.log(i, table[i].item_id, table[i].item_name)
+        data.push(table[i])
+        embeddings.push(JSON.parse(table[i].item_embedding))
+    }
+
+    console.log("Successfully loaded data:", data.length, embeddings.length)
+    console.log(embeddings[0])
+    await client.end();
 }
 
 
@@ -72,7 +70,7 @@ function store_filter(stores, tempData){
     var temp = []
     for(let i = 0; i < stores.length; i++){
         if(stores[i]){
-            temp.push(tempData.filter((item) => item.store === store_dict[i]))
+            temp.push(tempData.filter((item) => item.item_store === store_dict[i]))
         }
     }
     return temp.flat()
@@ -81,7 +79,8 @@ function store_filter(stores, tempData){
 //load NLP model
 async function loadModel(){
     await tf.ready();
-    model = await use.load()
+    let tempModel = await use.load()
+    return tempModel;
 }
 
 //compare two vector embeddings
@@ -96,25 +95,24 @@ function cosine_similarity(sentence_a, sentence_b){
 // 2. extract data from product_pricing.db
 // 3. create and sort list of cosine similarities, tracking the index of each entry
 // 4. filter out top 50-100 cosine similarities, then top 25 in lowest prices
-async function search_filter(input, embedding_list, data, numResults){
-    console.log("data first val", data.length, embedding_list.length)
+async function search_filter(input, embedding_list, tempData, numResults){
+    console.log("data first val", tempData.length, embedding_list.length)
     console.log('search input', input)
 
     let embed_comparison = []
     let input_embedding = await model.embed(input)
 
     //let test_embedding = await model.embed('Simple TruthÂ® All Natural Boneless Skinless Fresh Chicken Breast')
-    let test_embedding = await model.embed('Spaghetti')
     //console.log("server", test_embedding.arraySync()[0])
     //console.log("chicken breast", input_embedding.arraySync()[0])
-    console.log(cosine_similarity(input_embedding, test_embedding))
 
-    for(let i = 0; i < data.length; i++){
-        csim = cosine_similarity(input_embedding, embedding_list[data[i].id])
-        if(data[i].name.toLowerCase().indexOf(input) >= 0){
-            csim += 0.7
+    console.log(tempData.length)
+    for(let i = 0; i < tempData.length - 1; i++){
+        csim = cosine_similarity(input_embedding, embedding_list[tempData[i].item_id - 1])
+        if(tempData[i].item_name.toLowerCase().indexOf(input) >= 0){
+            csim += 0.9
         }
-        embed_comparison.push([csim, data[i].id])
+        embed_comparison.push([csim, tempData[i].item_id]) 
     }
 
     embed_comparison = embed_comparison.sort((a, b) => a[0] - b[0])
@@ -124,7 +122,8 @@ async function search_filter(input, embedding_list, data, numResults){
 
     let result = []
     for(let j = 0; j < numResults; j++){
-        result.push(data[temp[j][1]])
+        result.push(data[temp[j][1] - 1]) //embeddings load in item_id i + 1 at index i -- everything is shifted over by one
+        console.log(temp[j][0], tempData[temp[j][1]].item_name)
     }
     console.log("best match", embed_comparison[0])
     console.log('full list', temp)
@@ -143,7 +142,7 @@ async function search_filter(input, embedding_list, data, numResults){
 
 
 //process all the data from post request
-async function process_data(model, kroger, harristeeter, traderjoes, keywords=null) {
+async function process_data(kroger, harristeeter, traderjoes, keywords=null) {
     var res = []
     var tempRes = []
     console.log("data!!", data.length)
@@ -152,17 +151,17 @@ async function process_data(model, kroger, harristeeter, traderjoes, keywords=nu
     console.log(lines.length)
 
     if(keywords){
-        lines = await search_filter(keywords, embeddings, lines, 20)
+        lines = await search_filter(keywords, embeddings, lines, 7)
         console.log('filter', lines.length)
     }
 
     for(let i = 0; i < lines.length; i++){
         let temp = lines[i]
         let obj = {
-            'store' : temp.store,
-            'address': temp.location,
-            'name' : temp.name,
-            'price' : temp.price
+            'store' : temp.item_store,
+            'name' : temp.item_name,
+            'price' : temp.item_price,
+            'perUnit' : temp.item_perunit
         }
         if(obj.name !== 'item'){
             tempRes.push(obj)
@@ -185,7 +184,7 @@ app.get('/api', async (req, res) => {
 
     let results = await process_data(req.headers.kroger === 'true', req.headers.harristeeter === 'true', req.headers.traderjoes === 'true', req.headers.keywords)
     
-    console.log(results.items.length)
+    console.log(results)
     res.json({'data': [results]})
     console.log(`Data has been sent!`)
     /*new Promise((resolve, reject) => {
@@ -200,5 +199,6 @@ app.get('/api', async (req, res) => {
 app.listen(5000, () => {
     console.log(`Server listening on port 5000`)
 
+    console.log(`Warning: Make sure all csv and database entries are cleaned for unexpected white space, new lines, and characters`)
     database_setup();
 });

@@ -11,7 +11,7 @@ export default function Hero({data}) {
                             <div className='itemEntry' key={obj.name.concat(obj.price)}>
                                 <div className='store'>{obj.store}</div>
                                 <div className='name'>{obj.name}</div>
-                                <div className='price'>${Number(obj.price).toFixed(2)}</div>
+                                <div className='price'>${Number(obj.price).toFixed(2)} ({obj.perunit})</div>
                             </div>
                         ))}
                     </>

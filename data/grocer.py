@@ -4,7 +4,7 @@ import requests as requests
 from bs4 import BeautifulSoup
 
 #Trader Joe's info (from Chicago)
-"""url = 'https://traderjoesprices.com/'
+url = 'https://traderjoesprices.com/'
 page = requests.get(url)
 
 soup = BeautifulSoup(page.content, "html.parser")
@@ -16,12 +16,13 @@ for row in results:
     info = row.find_all('td')
     if info:
         name = info[0].find('a').text.strip()
+        name = name.replace(",", "")
         price = info[1].text.strip()
         tjData.append(['traderjoes', '2025 Bond St', name, price])
 
 tjDF = pd.DataFrame(tjData, columns=['store', 'address', 'item', 'total_price'])
-tjDF.to_csv('traderjoes_pricing.csv', index=False)"""
-
+tjDF.to_csv('./product_pricing/traderjoes_pricing.csv', index=False)
+print('TJ DF Logged')
 
 #Target info
 
