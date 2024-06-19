@@ -3,22 +3,24 @@ import Hero from './Hero';
 
 export default function Searcher () {
     const [resList, setResList] = useState([]);
-    const [keywordsQuery, setKeywordsQuery] = useState('');
 
-    const [krogerQuery, setKrogerQuery] = useState(false);
-    const [htQuery, setHTQuery] = useState(false);
-    const [tjQuery, setTJQuery] = useState(false);
+    const [filters, setFilters] = useState({
+        kroger: false,
+        harristeeter: false,
+        traderjoes: false,
+        keywords: null
+    })
+
+    const prettifyStore = {
+        'kroger': 'Kroger',
+        'harristeeter': 'Harris Teeter',
+        'traderjoes': `Trader Joe's`
+    }
 
     async function search () {
-        console.log(krogerQuery, htQuery, tjQuery)
         await fetch('/api', {
             method: 'GET',
-            headers: {
-                kroger: String(krogerQuery),
-                harristeeter: String(htQuery),
-                traderjoes: String(tjQuery),
-                keywords: keywordsQuery
-            }
+            headers: filters
         })
         .then(response => response.json())
         .then(data => {
@@ -35,7 +37,7 @@ export default function Searcher () {
                         <h1 key={store.title}>{store.title}</h1>
                         {store.items.slice(0, 7).map((obj) => (
                             <div className='itemEntry' key={obj.name.concat(obj.price)}>
-                                <div className='store'>{obj.store}</div>
+                                <div className='store'>{prettifyStore[obj.store]}</div>
                                 <div className='name'>{obj.name}</div>
                                 <div className='price'>${Number(obj.price).toFixed(2)} ({obj.perUnit})</div>
                             </div>
@@ -55,16 +57,16 @@ export default function Searcher () {
             <div className='search'>
                 <div className='storeList'>
                     <div className='storeSelection'>
-                        <button style={krogerQuery ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setKrogerQuery(!krogerQuery)}>Kroger</button>
+                        <button style={filters.kroger ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setFilters({...filters, kroger: !filters.kroger})}>Kroger</button>
                     </div>
                     <div className='storeSelection'>
-                        <button style={htQuery ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setHTQuery(!htQuery)}>Harris Teeter</button>
+                        <button style={filters.harristeeter ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setFilters({...filters, harristeeter: !filters.harristeeter})}>Harris Teeter</button>
                     </div>
                     <div className='storeSelection'>
-                        <button style={tjQuery ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setTJQuery(!tjQuery)}>Trader Joe's</button>
+                        <button style={filters.traderjoes ? {borderColor: 'black'} : {borderColor: 'white'}} onClick={() => setFilters({...filters, traderjoes: !filters.traderjoes})}>Trader Joe's</button>
                     </div>
                 </div>
-                <input className='searchbar' type='text' onChange={e => setKeywordsQuery(e.target.value)}></input>
+                <input className='searchbar' type='text' onChange={e => setFilters({...filters, keywords: e.target.value})}></input>
                 <button className='searchButton' onClick={search}>Submit</button>
             </div>
         </>
