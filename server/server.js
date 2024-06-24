@@ -48,13 +48,11 @@ async function database_setup() {
     let table = temp.rows
     //table[i] = {item_id: __, item_store: __, ...}
     for(let i = 0; i < table.length; i++){
-        console.log(i, table[i].item_id, table[i].item_name)
         data.push(table[i])
         embeddings.push(JSON.parse(table[i].item_embedding))
     }
 
     console.log("Successfully loaded data:", data.length, embeddings.length)
-    console.log(embeddings[0])
     await client.end();
 }
 
@@ -96,8 +94,6 @@ function cosine_similarity(sentence_a, sentence_b){
 // 3. create and sort list of cosine similarities, tracking the index of each entry
 // 4. filter out top 50-100 cosine similarities, then top 25 in lowest prices
 async function search_filter(input, embedding_list, tempData, numResults){
-    console.log("data first val", tempData.length, embedding_list.length)
-    console.log('search input', input)
 
     let embed_comparison = []
     let input_embedding = await model.embed(input)
@@ -125,8 +121,6 @@ async function search_filter(input, embedding_list, tempData, numResults){
         result.push(data[temp[j][1] - 1]) //embeddings load in item_id i + 1 at index i -- everything is shifted over by one
         console.log(temp[j][0], tempData[temp[j][1]].item_name)
     }
-    console.log("best match", embed_comparison[0])
-    console.log('full list', temp)
 
     return result;
 
@@ -139,24 +133,10 @@ async function search_filter(input, embedding_list, tempData, numResults){
         }*/
 }
 
-
-
-//process all the data from post request
-async function process_data(kroger, harristeeter, traderjoes, keywords=null) {
-    var res = []
-    var tempRes = []
-    console.log("data!!", data.length)
-    
-    let lines = await store_filter([kroger, harristeeter, traderjoes], data)
-    console.log(lines.length)
-
-    if(keywords){
-        lines = await search_filter(keywords, embeddings, lines, 7)
-        console.log('filter', lines.length)
-    }
-
-    for(let i = 0; i < lines.length; i++){
-        let temp = lines[i]
+function load_jsons(dataList){
+    let tempRes = []
+    for(let i = 0; i < dataList.length; i++){
+        let temp = dataList[i]
         let obj = {
             'store' : temp.item_store,
             'name' : temp.item_name,
@@ -167,14 +147,44 @@ async function process_data(kroger, harristeeter, traderjoes, keywords=null) {
             tempRes.push(obj)
         }
     }
+    return tempRes
+}
 
-    tempRes.sort((a, b) => Number(a.price) - Number(b.price))
-    res = {
-        'title': 'Top results',
-        'items': tempRes
+
+//process all the data from post request
+async function process_data(kroger, harristeeter, traderjoes, keywords=null) {
+    console.log("data!!", data.length)
+    
+    let lines = await store_filter([kroger, harristeeter, traderjoes], data)
+    console.log(lines.length)
+
+    keywords = keywords.split(',')
+    
+    var titles = new Map();
+
+    if(keywords){
+        if(keywords.length == 1){
+            var tempList = await search_filter(keywords[0], embeddings, lines, 7)
+            tempList.sort((a, b) => Number(a.price) - Number(b.price));
+            titles.set('Top Results', load_jsons(tempList));
+        }
+        else{
+            for(let i = 0; i < keywords.length; i++){
+                var temp = await search_filter(keywords[i], embeddings, lines, 1)
+                temp.sort((a, b) => Number(a.price) - Number(b.price));
+                let storeName = temp[0].item_store;
+                if(titles.get(storeName)){
+                    let state = titles.get(storeName);
+                    state.push(load_jsons([temp[0]])[0])
+                    titles.set(storeName, state);
+                }
+                else{
+                    titles.set(storeName, load_jsons([temp[0]]))
+                }
+            }
+        }
     }
-    console.log('wait for me you bitch!')
-    return res
+    return Object.fromEntries(titles);
 }
 
 
@@ -185,7 +195,7 @@ app.get('/api', async (req, res) => {
     let results = await process_data(req.headers.kroger === 'true', req.headers.harristeeter === 'true', req.headers.traderjoes === 'true', req.headers.keywords)
     
     console.log(results)
-    res.json({'data': [results]})
+    res.json({'data': results})
     console.log(`Data has been sent!`)
     /*new Promise((resolve, reject) => {
         process_data(req.headers.kroger === 'true', req.headers.harristeeter === 'true', req.headers.traderjoes === 'true', req.headers.keywords)

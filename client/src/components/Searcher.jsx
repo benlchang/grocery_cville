@@ -14,7 +14,8 @@ export default function Searcher () {
     const prettifyStore = {
         'kroger': 'Kroger',
         'harristeeter': 'Harris Teeter',
-        'traderjoes': `Trader Joe's`
+        'traderjoes': `Trader Joe's`,
+        'Top Results': 'Top Results'
     }
 
     async function search () {
@@ -24,36 +25,28 @@ export default function Searcher () {
         })
         .then(response => response.json())
         .then(data => {
-            setResList(data.data)
-            console.log(resList.length)
+            let loadIn = Array.from(Object.entries(data.data));
+            setResList(loadIn)
+            console.log(data.data)
+            console.log(loadIn)
         })
     }
     
     return (
         <>
-            {resList.length > 0 ? (<div className='searchResults'>
-                {resList.map((store) => (
-                    <>
-                        <h1 key={store.title}>{store.title}</h1>
-                        {store.items.slice(0, 7).map((obj) => (
-                            <div className='itemEntry' key={obj.name.concat(obj.price)}>
-                                <div className='store'>{prettifyStore[obj.store]}</div>
-                                <div className='name'>{obj.name}</div>
-                                <div className='price'>${Number(obj.price).toFixed(2)} ({obj.perUnit})</div>
-                            </div>
-                        ))}
-                    </>
-                    )
-                )}
-            </div>) :
-            (<div className='hero'>
-                <div className='homepage-logo'>
-                    Forager
-                </div>
-                <div className='homepage-subheader'>
-                    Find the best prices for the groceries you need
-                </div>
-            </div>)}
+            {resList.map((store) => (
+                <>
+                    <h2><u>{prettifyStore[store[0]]}</u></h2>
+                    {store[1].map(item => (
+                        <ul key={item.name}>
+                            {item.store !== store[0] && <li>{prettifyStore[item.store]}</li>}
+                            <li style={{fontWeight: '400'}}>{item.name}</li>
+                            <li>${item.price}</li>
+                            {item.length}
+                        </ul>
+                    ))}
+                </>
+            ))}
             <div className='search'>
                 <div className='storeList'>
                     <div className='storeSelection'>
