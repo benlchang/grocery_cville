@@ -86,6 +86,8 @@
   font-size: 18px;
 
   transition: background-color .25s, color .25s;
+
+  box-shadow: 3px 3px 3px rgb(0, 0, 0, 0.5);
 }
 
 .searchContainer{

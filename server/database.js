@@ -1,8 +1,9 @@
 //populate a database with csv file info
-const dataURL = '../data/product_pricing/complete_pricing.csv';
+const completeURL = '../data/product_pricing/complete_pricing.csv';
 const fs = require('fs');
 
-const complete_csv = fs.readFileSync(dataURL).toString().split('\n');
+//const complete_csv = fs.readFileSync(completeURL).toString().split('\n');
+//const startID = 2447;
 
 
 const tf = require('@tensorflow/tfjs');
@@ -18,6 +19,7 @@ async function processData(){
 }
 
 async function runEverything() {
+    const import_csv = fs.readFileSync('../data/product_pricing/import.csv').toString().split('\n');
     const client = new Client({
         user: 'postgres',
         password: '01B3nya30',
@@ -46,21 +48,27 @@ async function runEverything() {
         item_perUnit VARCHAR(255)
         `);*/
 
+    let startID = await client.query('SELECT MAX(item_id) FROM product_pricing')
+    console.log('max', startID.rows[0].max)
+
     await tf.ready()
     let model = await use.load();
     console.log('Model loaded...')
     let nameEncodings = []
 
-    for(let i = 1; i < complete_csv.length; i++){
-        let line = complete_csv[i].split(',')
+    for(let i = 1; i < import_csv.length - 1; i++){
+        let line = import_csv[i].split(',')
         let itemName = line[2];
         let itemPrice = line[3], itemPricePer = line[4]
         itemName = itemName.replace('Â', '');
+        itemName = itemName.replace('â', '');
+        itemName = itemName.replace('„', '');
+        itemName = itemName.replace('¢', '');
 
         let temp = await model.embed(itemName)
         let newName = await temp.array()
         await client.query(`INSERT INTO product_pricing (item_id, item_store, item_name, item_embedding, item_price, item_perunit) 
-                            VALUES ($1, $2, $3, $4, $5, $6)`, [i, line[0], itemName, pgvector.toSql(newName[0]), itemPrice, itemPricePer])
+                            VALUES ($1, $2, $3, $4, $5, $6)`, [i + startID.rows[0].max, line[0], itemName, pgvector.toSql(newName[0]), itemPrice, itemPricePer])
         console.log('Embedded', i)
     }
 
@@ -68,5 +76,8 @@ async function runEverything() {
     return nameEncodings
 }
 
+
 //let nameEncodings = runEverything();
+//processData();
+
 processData();

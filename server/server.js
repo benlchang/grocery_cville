@@ -111,12 +111,12 @@ async function search_filter(input, embedding_list, tempData, numResults){
     let temp = embed_comparison.filter(item => item[0] >= 0.5).slice(0, numResults)
 
     let result = []
-    for(let j = 0; j < numResults; j++){
-        if(temp[j][0] - temp[0][0] <= -.1){
+    for(let j = 0; j < Math.min(numResults, temp.length); j++){
+        if(temp[j][0] - temp[0][0] <= -.2){
             break;
         }
         result.push(data[temp[j][1] - 1]) //embeddings load in item_id i + 1 at index i -- everything is shifted over by one
-        console.log(temp[j][0], tempData[temp[j][1]].item_name)
+        console.log(temp[j][0], tempData[temp[j][1] - 1].item_name)
     }
 
     return result;
@@ -163,21 +163,26 @@ async function process_data(kroger, harristeeter, traderjoes, keywords=null) {
         if(keywords.length == 1){
             var tempList = await search_filter(keywords[0], embeddings, lines, 7)
             tempList.sort((a, b) => Number(a.item_price) - Number(b.item_price));
-            titles.set('All Results', load_jsons(tempList));
+            if(tempList){
+                titles.set('All Results', load_jsons(tempList));
+            }
         }
         else{
             for(let i = 0; i < keywords.length; i++){
                 var temp = await search_filter(keywords[i], embeddings, lines, 7)
                 temp.sort((a, b) => Number(a.item_price) - Number(b.item_price));
-                let storeName = temp[0].item_store;
+
+                if(temp){
+                    let storeName = temp[0].item_store;
                 
-                if(titles.get(storeName)){
-                    let state = titles.get(storeName);
-                    state.push(load_jsons([temp[0]])[0])
-                    titles.set(storeName, state);
-                }
-                else{
-                    titles.set(storeName, load_jsons([temp[0]]))
+                    if(titles.get(storeName)){
+                        let state = titles.get(storeName);
+                        state.push(load_jsons([temp[0]])[0])
+                        titles.set(storeName, state);
+                    }
+                    else{
+                        titles.set(storeName, load_jsons([temp[0]]))
+                    }
                 }
             }
         }

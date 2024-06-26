@@ -39,13 +39,13 @@ const loc_harristeeter_hollymead = '09700132';
 const loc_harristeeter_blueridge = '09700332';
 const loc_kroger_riohill = '02900334';
 
-var searchLocation = 'kroger_barracks';
-var searchTermList = ['chicken', 'cherries', 'protein bars']
+var searchLocation = 'harristeeter_barracks';
+//var searchTermList = ['chicken', 'cherries', 'protein bars', 'peanut butter', 'milk', 'beef', 'peaches']  //20 items
+var searchTermList = ['eggs', 'sweet potato', 'potatos', 'green onion', 'rice', 'apple', 'garlic', 'onion', 'carrot', 'cabbage', 'pork belly']   //10 items
+//var searchTermList = ['peanut butter', 'milk', 'beef', 'peaches']  //20 items
 
- 
 for(let i = 0; i < searchTermList.length; i++){    
-    let productURL = `https://api.kroger.com/v1/products?filter.limit=20&filter.term=${searchTermList[i]}&filter.locationId=${locations[searchLocation][1]}`;
-
+    let productURL = `https://api.kroger.com/v1/products?filter.limit=10&filter.term=${searchTermList[i]}&filter.locationId=${locations[searchLocation][1]}`;
     let inventory = []
 
     fetch(tokenURL, {
@@ -88,6 +88,7 @@ for(let i = 0; i < searchTermList.length; i++){
         //write to local CSV files
         const fs = require('fs');
 
+        //add to data.json instead of replacing all
         let existingData = []
         try{
             existingData = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
@@ -98,7 +99,10 @@ for(let i = 0; i < searchTermList.length; i++){
 
         console.log(inventory.length)
         let allData = existingData.concat([...inventory])
+        
         var serializedArray = JSON.stringify(allData);
+        
+        //var serializedArray = JSON.stringify(inventory)
         fs.writeFileSync('data.json', serializedArray);
     })
     .catch(error => {
