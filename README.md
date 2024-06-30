@@ -1,4 +1,6 @@
-##The Inspiration
+# Grocery List Optimizer - Full Stack App
+
+## The Inspiration
 
 As a stingy college student who wants to get better at cooking, the local grocery 
 stores in Charlottesville are pretty important in my daily life. However, it's 
@@ -7,7 +9,7 @@ share of shopping, but not everyone wants to spend so many trips visiting each a
 store in the area to derive their own optimal grocery list -- what a waste of time,
 gas, and patience!
 
-##The Project
+## The Project
 
 For myself and my friends who had the same concerns, I decided to use this as an
 opportunity to grow as a full-stack developer and build this grocery list optimizing
@@ -20,7 +22,7 @@ thoroughly planned out and sorted by store!
 ![system_full](https://github.com/benlchang/grocery_cville/assets/86611416/73fba2f0-d859-4036-84cf-2245aac73cb1)\
 _Full system design for the grocery list optimizer project. Backend technologies like web scraping scripts and Kroger API programs not included._
 
-##The Architecture
+## The Architecture
 
 I designed and built the user interface with React, a framework I've come to love for its 
 straightforward component architecture and state management. At the click of a button, the 
