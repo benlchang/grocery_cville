@@ -116,7 +116,6 @@ async function search_filter(input, embedding_list, tempData, numResults){
             break;
         }
         result.push(data[temp[j][1] - 1]) //embeddings load in item_id i + 1 at index i -- everything is shifted over by one
-        console.log(temp[j][0], tempData[temp[j][1] - 1].item_name)
     }
 
     return result;
