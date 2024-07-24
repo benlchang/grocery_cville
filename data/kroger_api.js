@@ -1,5 +1,6 @@
-const client_id = 'benlchanggrocerylistgenerator-1da20a96997deee9384ef68922de4091426039652201572792'
-const client_secret = 'pLZLIYMSwV9PMwRNjXL7pWzPjnVLFKvkjXTPUR4O'
+//Interact with Kroger API
+//Retrieve store location ID based on a reference location
+//Retrieve product and pricing data based on item input
 
 //setup request for API token
 //TOKEN DIES AFTER 30 MINUTES
