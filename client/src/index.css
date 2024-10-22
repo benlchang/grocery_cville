@@ -1,0 +1,152 @@
+:root{
+  --background: #212121;
+  --foreground: #424242;
+  --text-color: #ccc;
+}
+
+* {
+  margin: 0;
+  background-color: var(--background);
+  color: var(--text-color);
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+/*Central display*/
+.hero {
+  height: 75vh;
+  width: 100vw;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding-top: 2.5vh;
+
+  transition: 1s ease-out;
+}
+
+.hero u {
+  font-size: 7.5vw;
+  background: -webkit-linear-gradient(285deg, #ddd 10%, #636363, #6a6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.5vw;
+  padding-top: 0.75vw;
+  background: -webkit-linear-gradient(285deg, #636363 10%, #6a6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.homepage-logo{
+  font-size: 5vw;
+}
+
+.homepage-subheader{
+  margin: 1.5vh 0 0 0;
+
+  font-size: 2.5vw;
+}
+
+/*Item entry for search results display*/
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  animation: fadeIn;
+  transition: .75s ease-out;
+}
+
+@keyframes fadeIn{
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 100;
+  }
+}
+
+/*Fixed searchbar 'footer'*/
+.search{ 
+  position: fixed;
+  top: 70vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.storeList{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin: 20px;
+  padding: 0 30px;
+}
+
+.storeSelection{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin: 0 30px;
+  padding: 16px 24px;
+
+  border-radius: 16px;
+
+  font-size: 18px;
+
+  transition: background-color .25s, color .25s;
+
+  box-shadow: 3px 3px 3px rgb(0, 0, 0, 0.5);
+}
+
+.searchContainer{
+  z-index: 5;
+  position: relative;
+  width: 60vw;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.searchbar{
+  margin: 12px;
+  padding: 20px 28px;
+  background-color: var(--foreground);
+  width: 80%;
+  border-radius: 38px;
+
+  outline: #595;
+
+  font-size: 20px;
+
+  border: solid 1px black;
+
+  transition: background-color .25s;
+
+  &:hover{
+    background-color: #535353;
+  }
+}
+
+.searchButton{
+  background-color: var(--foreground);
+  margin-left: 8px;
+  outline: none;
+  z-index: 3;
+  width: 60px;
+  height: 60px;
+  border: solid 2px black;
+  border-radius: 50%;
+
+  font-size: 20px;
+  text-align: center;
+}
