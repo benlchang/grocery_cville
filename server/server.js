@@ -1,5 +1,6 @@
 //set up server
 //import necessary packages
+require('dotenv').config()
 
 const express = require('express');
 const app = express();
@@ -28,7 +29,6 @@ let data = [];
 let embeddings = [];
 let model;
 
-
 //set up database, data
 async function database_setup() {
     console.log('Loading model...')
@@ -37,7 +37,7 @@ async function database_setup() {
 
     let client = new Client({
         user: 'postgres',
-        password: '01B3nya30',
+        password: process.env.POSTGRES_PASS,
         port: '5432'
     })
     await client.connect();
